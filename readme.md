@@ -55,17 +55,6 @@ rag-lab/
 - kubectl CLI 도구
 - Homebrew (Mac OS)
 
-### Python 가상환경 설정
-```bash
-# 가상환경 생성
-python -m venv .venv
-
-# 가상환경 활성화
-source .venv/bin/activate
-
-# 필요한 패키지 설치
-pip install -r requirements.txt
-```
 
 ## 실행 방법
 
