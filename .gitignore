@@ -21,6 +21,41 @@ build/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*/.ipynb_checkpoints/*
 
-# Data files
-codes/rag_project/data/**/*
+# Project specific
+# RAG FastAPI Simple
+rag-fastapi-simple/app/data/
+rag-fastapi-simple/app/chroma/
+rag-fastapi-simple/app/logs/
+
+# RAG FastAPI Structured
+rag-fastapi-structured/app/data/
+rag-fastapi-structured/app/chroma/
+rag-fastapi-structured/app/logs/
+
+# RAG Jupyter
+rag-jupyter/data/
+rag-jupyter/chroma/
+rag-jupyter/logs/
+
+# ChromaDB
+*.sqlite3
+.chroma/
+chroma/
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

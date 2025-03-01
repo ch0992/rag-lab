@@ -1,134 +1,119 @@
 # RAG Lab
 
-이 프로젝트는 Ollama와 ChromaDB를 사용하는 한국어 특화 RAG(Retrieval-Augmented Generation) 시스템입니다. FastAPI를 통해 RESTful API를 제공하며, 문서 기반 질의응답 서비스를 구현합니다.
+이 프로젝트는 Ollama와 ChromaDB를 사용하는 한국어 특화 RAG(Retrieval-Augmented Generation) 시스템의 구현 예제들을 포함하고 있습니다. 다양한 구현 방식과 아키텍처를 통해 RAG 시스템의 이해와 학습을 돕습니다.
 
-## 프로젝트 구조
+## 프로젝트 구조 (Project Structure)
 
 ```
 rag-lab/
-├── codes/
-│   └── rag_project/
-│       ├── data/          # ChromaDB 벡터 저장소
-│       ├── document/      # 문서 파일 저장소 (.txt)
-│       ├── app.py         # FastAPI 서버 및 API 엔드포인트
-│       ├── embeddings.py  # 임베딩 모델 설정
-│       ├── query_runner.py # 쿼리 처리 및 Ollama 연동
-│       └── vector_store.py # ChromaDB 벡터 저장소 관리
-├── vectordb/            # ChromaDB 쿠버네티스 설정
-│   └── chromadb.yaml    # ChromaDB 배포 설정 파일
-└── README.md
+├── rag-fastapi-simple/     # 기본적인 FastAPI RAG 구현
+├── rag-fastapi-structured/ # 구조화된 FastAPI RAG 구현
+├── rag-jupyter/           # Jupyter Notebook RAG 구현
+├── infra-setup/          # 인프라 설치 및 설정
+├── integration-tests/    # 인프라 통합 테스트
+└── requirements.txt     # 공통 의존성
 ```
 
-## 주요 파일 설명
+## 필수 요구사항 (Prerequisites)
 
-### 1. `app.py`
-- FastAPI 서버 구현
-- API 엔드포인트 정의:
-  - `/load/`: 문서 로드 및 벡터 DB 저장
-  - `/load/all`: document 폴더의 모든 텍스트 파일 로드
-  - `/query/`: RAG 기반 질의응답
-  - `/collections/`: 저장된 콜렉션 목록 조회
-  - `/collections/{collection_name}/contents`: 특정 콜렉션 내용 조회
-  - `/collections/{collection_name}`: 특정 콜렉션 삭제 (DELETE)
-  - `/collections`: 모든 콜렉션 삭제 (DELETE)
-- 서버 시작 시 `document/` 폴더의 텍스트 파일 자동 로드
+### 운영 환경 (Operating System)
+- Linux 환경 지원
 
-### 2. `embeddings.py`
-- 다국어 지원 sentence-transformer 모델 설정
-- 모델: `paraphrase-multilingual-MiniLM-L12-v2`
-
-### 3. `query_runner.py`
-- Ollama API 연동 및 쿼리 처리
-- 한글 전용 응답 생성 로직
-- 문서 기반 엄격한 답변 생성
-
-### 4. `vector_store.py`
-- ChromaDB 벡터 저장소 관리
-- 문서 청크 저장 및 검색 기능
-
-## 사전 요구사항
-
-### 필수 설치 항목
+### 프로그래밍 환경 (Programming Environment)
 - Python 3.9 이상
-- Docker Desktop with Kubernetes 활성화
-  - Docker Desktop > Settings > Kubernetes > Enable Kubernetes
-- kubectl CLI 도구
-- Homebrew (Mac OS)
 
+### 필수 컴포넌트 (Required Components)
 
-## 실행 방법
+1. **ChromaDB**
+   - 설치 옵션:
+     - Docker Desktop 클러스터를 통한 설치 (추천)
+     - 로컬 설치 (선택사항)
+   - 자세한 설치 가이드는 `infra-setup` 디렉토리 참조
 
-### 1. ChromaDB 설치 (Docker Desktop Kubernetes)
+2. **Ollama**
+   - 한국어 질의응답을 위한 LLM 엔진
+   - 모델: deepseek-r1:8b (추천)
+   - 설치 방법:
+     ```bash
+     # Linux
+     curl https://ollama.ai/install.sh | sh
+     
+     # 서버 실행
+     ollama serve
+     
+     # 모델 다운로드
+     ollama pull deepseek-r1:8b
+     ```
 
+## 구현 예제 (Implementation Examples)
+
+### 1. rag-fastapi-simple
+- 기본적인 FastAPI 기반 RAG 구현
+- 단일 파일 구조로 빠른 이해와 시작 가능
+- 핵심 기능에 집중한 최소한의 구현
+
+### 2. rag-fastapi-structured
+- FastAPI의 구조화된 아키텍처 적용
+- 라우터, 서비스, 스키마 분리
+- 확장 가능하고 유지보수가 용이한 구조
+
+### 3. rag-jupyter
+- Jupyter Notebook 기반 RAG 구현
+- 단계별 RAG 프로세스 시각화
+- 실험과 학습을 위한 인터랙티브 환경
+
+## 인프라 및 테스트 (Infrastructure & Tests)
+
+### 1. infra-setup
+- ChromaDB 설치 및 설정
+- 벡터 데이터베이스 환경 구성
+
+### 2. integration-tests
+- ChromaDB CRUD 테스트
+- Ollama API 연동 테스트
+- 인프라 컴포넌트 통합 테스트
+
+## 시작하기 (Getting Started)
+
+1. 의존성 설치:
 ```bash
-# Docker Desktop의 Kubernetes 클러스터에 ChromaDB 설치
-kubectl apply -f vectordb/chromadb.yaml
-```
-
-### 2. Ollama 설치 및 실행 (필수 선행 작업)
-```bash
-# Ollama 설치 (Mac)
-brew install ollama
-
-# Ollama 서버 실행 (별도의 터미널에서 실행)
-ollama serve
-
-# 다른 터미널에서 모델 다운로드
-ollama pull deepseek-r1:8b
-
-# 모델 테스트 (선택사항)
-ollama run deepseek-r1:8b
-```
-
-### 2. 가상환경 설정
-```bash
-# 프로젝트 루트로 이동
-cd rag-lab
-
-# Python 가상환경 생성
-python -m venv venv
-
-# 가상환경 활성화
-source venv/bin/activate  # Mac/Linux
-# 또는
-# .\venv\Scripts\activate  # Windows
-
-# 패키지 설치
 pip install -r requirements.txt
 ```
 
-### 3. 서버 실행
+2. ChromaDB 설치:
+- `infra-setup` 디렉토리의 설치 가이드 참조
+
+3. Ollama 설치 및 실행:
 ```bash
-# 가상환경이 활성화되어 있는지 확인
-# 터미널 앞에 (venv)가 표시되어야 함
+# Mac OS
+brew install ollama
 
-# rag_project 폴더로 이동
-cd codes/rag_project
+# 서버 실행
+ollama serve
 
-# FastAPI 서버 실행
-uvicorn app:app --reload
+# 모델 다운로드
+ollama pull deepseek-r1:8b
 ```
 
-### 4. 문서 추가
-- `document/` 폴더에 텍스트 파일(.txt) 추가
-- 서버 시작 시 자동으로 로드됨
-- 파일명이 콜렉션 이름으로 사용됨
+4. 원하는 구현 예제 실행:
+- `rag-fastapi-simple`: 빠른 시작과 기본 이해 (자세한 설명은 [`rag-fastapi-simple/readme.md`](rag-fastapi-simple/readme.md) 참조)
+- `rag-fastapi-structured`: 프로덕션 수준의 구현 (자세한 설명은 [`rag-fastapi-structured/README.md`](rag-fastapi-structured/README.md) 참조)
+- `rag-jupyter`: 단계별 학습과 실험 (자세한 설명은 [`rag-jupyter/README.md`](rag-jupyter/README.md) 참조)
 
-### 5. API 사용
-```bash
-# 콜렉션 목록 조회
-curl http://localhost:8000/collections/
+## 특징 (Features)
 
-# 질의응답
-curl -X POST http://localhost:8000/query/ \
-     -H "Content-Type: application/json" \
-     -d '{"collection_name":"sample","query":"질문내용"}'
-```
-
-## 특징
 - 한국어 특화 RAG 시스템
-- 실시간 문서 기반 질의응답
-- 자동 문서 로드 및 벡터화
-- 엄격한 문서 기반 답변 생성
-- 순수 한글 응답 지원
+- 다양한 구현 방식 제공
+- 실용적인 예제와 테스트
+- 확장 가능한 아키텍처
+- 상세한 문서화
 
+## 작성자 (Author)
+
+**최영규 (Yeong-gyu Choi)**
+- LinkedIn: [Yeong-gyu Choi](https://www.linkedin.com/in/yeong-gyu-choi-32355b174/)
+- Email: ktma82@gmail.com
+
+## 라이선스 (License)
+
+MIT License
