@@ -25,9 +25,12 @@ rag-lab/
 - FastAPI 서버 구현
 - API 엔드포인트 정의:
   - `/load/`: 문서 로드 및 벡터 DB 저장
+  - `/load/all`: document 폴더의 모든 텍스트 파일 로드
   - `/query/`: RAG 기반 질의응답
   - `/collections/`: 저장된 콜렉션 목록 조회
   - `/collections/{collection_name}/contents`: 특정 콜렉션 내용 조회
+  - `/collections/{collection_name}`: 특정 콜렉션 삭제 (DELETE)
+  - `/collections`: 모든 콜렉션 삭제 (DELETE)
 - 서버 시작 시 `document/` 폴더의 텍스트 파일 자동 로드
 
 ### 2. `embeddings.py`

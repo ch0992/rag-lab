@@ -1,5 +1,5 @@
 import json
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import Chroma
 from embeddings import NomicEmbeddings  # embed 모듈 사용
 
 # CHROMA 서비스 주소 (Kubernetes 클러스터 내 서비스 기준)
@@ -48,10 +48,19 @@ def store_documents_in_chroma(documents, collection_name="rag_test"):
     문서를 벡터로 변환하여 ChromaDB에 저장하는 함수.
     - RecursiveCharacterTextSplitter로 한글 문서에 최적화된 청크 생성
     - LangChain의 `HuggingFaceEmbeddings`를 사용하여 벡터화
-    - Kubernetes 내 ChromaDB 서비스에 연결
     - `persist_directory`를 설정하여 데이터 영구 저장
     """
     try:
+        # 문서가 Document 객체인 경우 텍스트 추출
+        texts = []
+        for doc in documents:
+            if hasattr(doc, 'page_content'):
+                texts.append(doc.page_content)
+            elif isinstance(doc, str):
+                texts.append(doc)
+            else:
+                raise ValueError(f"Unsupported document type: {type(doc)}")
+
         # 한글 문서에 최적화된 텍스트 스플리터 설정
         text_splitter = RecursiveCharacterTextSplitter(
             separators=["\n\n", "\n", ".", "!", "?", "。", "！", "？", " ", ""],
@@ -64,37 +73,26 @@ def store_documents_in_chroma(documents, collection_name="rag_test"):
         
         # 문서를 청크로 분할
         splits = []
-        for doc in documents:
-            doc_splits = text_splitter.split_text(doc)
-            splits.extend(doc_splits)
-            
-        documents = splits
+        for text in texts:
+            if isinstance(text, str) and text.strip():
+                doc_splits = text_splitter.split_text(text)
+                splits.extend(doc_splits)
 
-        # ✅ HuggingFace 임베딩 모델 사용
-        embedding_model = NomicEmbeddings()  # embed 모듈 사용
+        if not splits:
+            raise ValueError("No valid text content found in documents")
 
-        # ✅ Chroma 클라이언트 설정 (클라이언트 직접 생성)
-        settings = Settings(
-            is_persistent=True,
+        # ✅ 임베딩 모델 사용
+        embedding_model = NomicEmbeddings()
+
+        # ✅ Chroma 인스턴스 생성
+        vector_db = Chroma.from_texts(
+            texts=splits,
+            embedding=embedding_model,
+            collection_name=collection_name,
             persist_directory=PERSIST_DIR
         )
 
-        # ✅ Chroma 인스턴스 생성
-        vector_db = Chroma(
-            collection_name=collection_name,
-            embedding_function=embedding_model,
-            persist_directory=PERSIST_DIR,
-            client_settings=settings  # ✅ 클라이언트 설정 적용
-        )
+        return vector_db
 
-        # ✅ 문서를 벡터DB에 추가
-        vector_db.add_documents(documents)
-        # ChromaDB now automatically persists data
-
-        # ✅ Chroma 객체가 올바른지 확인
-        if not isinstance(vector_db, Chroma):
-            raise RuntimeError("❌ Chroma 객체 생성 실패: 반환된 객체가 Chroma 인스턴스가 아님")
-
-        return vector_db  # ✅ Chroma 객체 반환
     except Exception as e:
-        raise RuntimeError(f"❌ 벡터DB 저장 실패: {e}")
+        raise RuntimeError(f"❌ 벡터DB 저장 실패: {str(e)}")
