@@ -21,3 +21,6 @@ build/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# Data files
+codes/rag_project/data/**/*
