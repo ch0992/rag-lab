@@ -8,6 +8,7 @@ class LoadDocumentRequest(BaseModel):
 class QueryRequest(BaseModel):
     collection_name: str
     query: str
+    stream: bool = False
 
 class QueryResponse(BaseModel):
     response: str

@@ -40,7 +40,7 @@ class RAGService:
             print(f"Error loading documents: {e}")
             return []
 
-    async def query_ollama(self, prompt: str) -> str:
+    async def query_ollama(self, prompt: str, stream: bool = False) -> str:
         try:
             # 타임아웃 설정 증가
             timeout = httpx.Timeout(
@@ -57,28 +57,38 @@ class RAGService:
                     json={
                         "model": self.model,
                         "prompt": prompt,
-                        "stream": False,  # 스트리밍 비활성화
-                        "options": {
-                            "temperature": 0.7,
-                            "top_p": 0.9,
-                            "top_k": 40
-                        }
+                        "stream": stream,
+                        "system": "당신은 한국어 전용 답변 도우미입니다. 다음 규칙을 절대적으로 따르세요:\n1. 오직 한글로만 답변하세요\n2. 영어는 한글로 변환하세요 (API -> 에이피아이)\n3. 특수문자와 한자는 사용하지 마세요\n4. 간단명료하게 핵심만 답변하세요\n5. 모든 외래어는 한글로 표기하세요\n6. 답변 이외의 설명은 하지 마세요\n7. 생각하는 과정을 보여주지 마세요\n8. 바로 결과만 보여주세요"
                     }
                 )
 
-                
                 if response.status_code != 200:
                     print(f"Error response from Ollama API: {response.text}")
                     return "⚠️ Ollama API 오류"
                 
-                json_response = response.json()
-
-                
-                if 'response' not in json_response:
-    
-                    return "⚠️ Ollama 응답 오류"
-                
-                response_text = json_response['response']
+                if stream:
+                    # 스트리밍 응답 처리
+                    full_response = ""
+                    async for line in response.aiter_lines():
+                        if line:
+                            try:
+                                json_response = json.loads(line)
+                                if 'response' in json_response:
+                                    full_response += json_response['response']
+                            except json.JSONDecodeError:
+                                continue
+                    
+                    if not full_response:
+                        return "⚠️ Ollama 응답 오류"
+                    
+                    response_text = full_response
+                else:
+                    # 단일 응답 처리
+                    json_response = response.json()
+                    if 'response' not in json_response:
+                        return "⚠️ Ollama 응답 오류"
+                    
+                    response_text = json_response['response']
                 
                 # think 태그와 그 내용 제거
                 if '<think>' in response_text:
@@ -101,7 +111,11 @@ class RAGService:
                     
                 formatted_response = lines[0]
                 for line in lines[1:]:
-                    if line.startswith(('1)', '2)', '3)', '4)', '5)', '6)', '7)', '8)', '9)')): 
+                    # 숫자로 시작하는 경우 (1. 2. 3. 등)
+                    if line[0].isdigit() and len(line) > 1 and line[1] == '.':
+                        formatted_response += '\n\n' + line
+                    # 번호 리스트로 시작하는 경우 (1), 2), 3) 등)
+                    elif line.startswith(('1)', '2)', '3)', '4)', '5)', '6)', '7)', '8)', '9)')): 
                         formatted_response += '\n\n' + line
                     else:
                         formatted_response += '\n' + line
@@ -114,38 +128,48 @@ class RAGService:
             print(f"Traceback: {traceback.format_exc()}")
             return "⚠️ Ollama API 오류"
 
-    async def run_rag_query(self, collection_name: str, query: str) -> str:
+    async def run_rag_query(self, collection_name: str, query: str, stream: bool = False) -> str:
         try:
-            # 쿼리 임베딩 생성
-            query_embedding = get_embeddings([query])
             # 지정된 콜렉션의 문서 검색
-            similar_docs = self.vector_store.similarity_search(query_embedding, collection_name)
+            similar_docs = self.vector_store.similarity_search(collection_name, query)
             if not similar_docs:
                 return "문서가 없습니다."
             
             # 프롬프트 생성
-            prompt = f"""역할: 당신은 주어진 문서들에서 모든 관련 정보를 찾아 종합적으로 답변하는 역할을 합니다.
+            # 검색된 문서를 구조화된 형태로 처리
+            contexts = []
+            for i, doc in enumerate(similar_docs, 1):
+                if doc:
+                    contexts.append(f"문서 {i}:\n{doc}")
+            
+            # 명확한 구분자로 문서들을 결합
+            context = "\n\n=== 다음 문서 ===\n\n".join(contexts)
+            
+            # 프롬프트 구성
+            prompt = f"""
+다음 지시사항을 엄격히 따라 답변해주세요:
 
-문서 내용:
-{similar_docs}
+1. 반드시 한글로만 답변하세요.
+2. 영어 단어는 모두 한글로 변환하세요 (예: API -> 에이피아이).
+3. 특수문자나 한자는 절대 사용하지 마세요.
+4. 간단명료하게 답변하세요.
+5. 불필요한 설명이나 부연은 제외하세요.
+6. 답변 전에 생각하는 과정을 보여주지 마세요.
+7. 바로 결과만 보여주세요.
 
-질문: {query}
+주어진 문서:
+{context}
 
-중요 지침:
-1. 모든 문서의 내용을 검토하여 관련된 정보를 모두 찾아주세요.
-2. 각 문서의 정보를 종합하여 하나의 완성된 답변을 만들어주세요.
-3. 문서에 없는 내용은 추가하지 마세요.
-4. 외부 지식이나 추론은 하지 마세요.
-5. 영어나 특수문자는 최소한으로 사용하세요.
-6. 여러 문서의 정보가 있다면 모두 포함해서 답변해주세요.
-7. 답변은 간결하면서도 포괄적이어야 합니다.
-8. 문서에서 관련 내용을 찾을 수 없다면 '주어진 문서에서 관련 정보를 찾을 수 없습니다.'라고만 답변해주세요.
-9. 답변 시작에는 '💬 답변: '을 붙여주세요.
+질문:
+{query}
+
+답변 형식:
+[질문에 대한 답변만 작성]
 """
             # 프롬프트 출력 제거
             
             # Ollama API 호출
-            response = await self.query_ollama(prompt)
+            response = await self.query_ollama(prompt, stream=stream)
             return response
             
         except Exception as e:

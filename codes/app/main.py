@@ -32,13 +32,15 @@ async def startup_event():
         rag_service = RAGService()
         loaded_files = rag_service.load_all_documents()
         if loaded_files:
-            print(f"Loaded {len(loaded_files)} documents: {', '.join(loaded_files)}")
+            print("\n📄 Document Loading Status:")
+            print("-" * 30)
+            for file in loaded_files:
+                print(f"  ✓ {file}")
+            print(f"  Total: {len(loaded_files)} documents loaded\n")
         else:
-            print("No documents found to load")
+            print("\n⚠️ No documents found to load\n")
             
-        print("Server started successfully")
-        print(f"Document directory: {settings.DOCUMENT_PATH}")
-        print("Use /docs endpoint to access the Swagger UI")
+        print("🟢 Server started successfully")
             
     except Exception as e:
         print(f"Error during startup: {str(e)}")

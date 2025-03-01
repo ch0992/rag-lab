@@ -123,7 +123,7 @@ async def process_query(request: QueryRequest):
             )
         context = documents[0]  # 첫 번째 문서를 컨텍스트로 사용
         
-        response = await rag_service.run_rag_query(request.collection_name, request.query)
+        response = await rag_service.run_rag_query(request.collection_name, request.query, stream=request.stream)
         print(f"Response: {response}")
         
         return QueryResponse(response=response)

@@ -4,6 +4,11 @@ from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from config import settings
 
+import logging
+
+# ChromaDB 로깅 레벨 설정
+logging.getLogger('chromadb').setLevel(logging.ERROR)
+
 class VectorStore:
     class EmbeddingFunction:
         def __init__(self, model):
@@ -65,6 +70,7 @@ class VectorStore:
                     name=collection_name,
                     embedding_function=self.embed_function
                 )
+                print(f"Created new collection: {collection_name}")
                 
             # 현재 콜렉션의 문서 ID 확인
             current_docs = collection.get()
@@ -81,6 +87,7 @@ class VectorStore:
                     new_docs.append(text)
                     new_ids.append(doc_id)
                     new_metadatas.append({"source": collection_name})
+                    print(f"Adding new document: {doc_id}")
             
             # 새로운 문서가 있는 경우에만 추가
             if new_docs:
@@ -101,7 +108,7 @@ class VectorStore:
         for collection_name in collections:
             self.client.delete_collection(collection_name)
     
-    def similarity_search(self, query_embedding: List[float], collection_name: str, top_k: int = 1) -> str:
+    def similarity_search(self, collection_name: str, query: str, top_k: int = 3) -> List[str]:
         """
         쿼리와 가장 유사한 문서를 찾아 반환합니다.
         """
@@ -109,24 +116,29 @@ class VectorStore:
             # 콜렉션 가져오기
             collection = self.client.get_collection(collection_name)
 
+            # 쿼리 임베딩 생성
+            query_embedding = self.embedding_model.embed_documents([query])[0]
+
+            # 콜렉션 크기 확인
+            collection_data = collection.get()
+            doc_count = len(collection_data.get('documents', []))
+            
+            # 최대 결과 수 조정
+            adjusted_top_k = min(top_k, doc_count)
+
             results = collection.query(
-                query_embeddings=query_embedding,  # ChromaDB는 단일 임베딩을 바로 받을 수 있음
-                n_results=top_k
+                query_embeddings=[query_embedding],
+                n_results=adjusted_top_k
             )
 
-            
             # 결과 검사
             if not results or 'documents' not in results or not results['documents']:
-
-                return "문서가 없습니다."
+                return []
                 
             if not results['documents'][0]:
-
-                return "문서가 없습니다."
+                return []
                 
-            document = results['documents'][0][0]
-
-            return document
+            return results['documents'][0]
             
         except Exception as e:
             import traceback
