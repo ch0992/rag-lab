@@ -1,4 +1,4 @@
-# RAG Lab
+# RAG (Retrieval-Augmented Generation) Lab
 
 이 프로젝트는 Ollama와 ChromaDB를 사용하는 한국어 특화 RAG(Retrieval-Augmented Generation) 시스템의 구현 예제들을 포함하고 있습니다. 다양한 구현 방식과 아키텍처를 통해 RAG 시스템의 이해와 학습을 돕습니다.
 
