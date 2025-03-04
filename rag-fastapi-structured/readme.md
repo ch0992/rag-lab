@@ -25,7 +25,7 @@ venv\Scripts\activate  # Windows
 
 2. 의존성 설치:
 ```bash
-pip install -r requirements.txt
+pip install -r app/requirements.txt
 ```
 
 3. Ollama 설치 및 실행:
@@ -35,7 +35,6 @@ brew install ollama
 
 # Ollama 실행
 ollama run deepseek-coder
-```
 
 4. 환경 설정:
 기본 환경 변수가 설정되어 있으며, 필요시 다음 값들을 변경할 수 있습니다:
