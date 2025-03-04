@@ -166,8 +166,7 @@ async def delete_collection(collection_name: str):
     """
     try:
         # 콜렉션 존재 여부 확인
-        collections = chroma_client.list_collections()
-        collection_names = [c.name for c in collections]
+        collection_names = chroma_client.list_collections()
         if collection_name not in collection_names:
             raise HTTPException(
                 status_code=404,
@@ -257,11 +256,10 @@ async def delete_all_collections():
         }
     """
     try:
-        collections = chroma_client.list_collections()
+        collection_names = chroma_client.list_collections()
         deleted_collections = []
         
-        for collection in collections:
-            collection_name = collection.name
+        for collection_name in collection_names:
             chroma_client.delete_collection(name=collection_name)
             deleted_collections.append(collection_name)
             print(f"\n🗑️ 콜렉션 삭제 완료: {collection_name}")

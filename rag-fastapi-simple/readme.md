@@ -85,11 +85,10 @@ source venv/bin/activate  # Mac/Linux
 # .\venv\Scripts\activate  # Windows
 
 # 패키지 설치
-pip install -r requirements.txt
+pip install -r app/requirements.txt
 
 # FastAPI 서버 실행
-cd app
-uvicorn app:app --reload
+cd app && uvicorn app:app --reload
 ```
 
 ### 4. API 사용
