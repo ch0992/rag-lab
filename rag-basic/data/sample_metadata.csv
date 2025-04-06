@@ -1,0 +1,10 @@
+table_name,column_name,data_type,description,sample_values,statistics
+customer_orders,order_id,bigint,"Unique identifier for each order","[1001, 1002, 1003]","{'min': 1001, 'max': 9999, 'null_count': 0}"
+customer_orders,customer_id,bigint,"Foreign key to customers table","[501, 502, 503]","{'min': 1, 'max': 1000, 'null_count': 0}"
+customer_orders,order_date,timestamp,"Date and time when order was placed","['2024-01-01 10:00:00', '2024-01-01 11:30:00']","{'min': '2024-01-01', 'max': '2024-12-31', 'null_count': 0}"
+customer_orders,total_amount,decimal(10,2),"Total order amount in USD","[99.99, 150.50, 75.25]","{'min': 0.00, 'max': 9999.99, 'null_count': 0}"
+customer_orders,status,string,"Current status of the order","['pending', 'completed', 'cancelled']","{'distinct_count': 3, 'null_count': 0}"
+customers,customer_id,bigint,"Unique identifier for each customer","[501, 502, 503]","{'min': 1, 'max': 1000, 'null_count': 0}"
+customers,name,string,"Customer's full name","['John Doe', 'Jane Smith']","{'distinct_count': 1000, 'null_count': 0}"
+customers,email,string,"Customer's email address","['john@example.com', 'jane@example.com']","{'distinct_count': 1000, 'null_count': 0}"
+customers,join_date,date,"Date when customer joined","['2024-01-01', '2024-01-02']","{'min': '2024-01-01', 'max': '2024-12-31', 'null_count': 0}"
