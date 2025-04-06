@@ -115,101 +115,93 @@ rag-langchain-elastic/
 └── README.md
 
 
-
 ⸻
 
 🗂️ 전체 단계 구성 및 블로그 링크 (Step01 ~ Step30)
 
 🔹 PART 1. RAG 기초 및 임베딩
 
-Step	주제	블로그
-step01	RAG란 무엇인가?	Ep.01
-step02	실습 환경 구성	Ep.02
-step03	Iceberg metadata 로딩	Ep.03
-step04	텍스트 전처리 및 문서화	Ep.04
-step05	OpenAI Embedding 처리	Ep.05
-step06	Elasticsearch에 벡터 저장	Ep.06
+✅ RAG의 개념 이해부터 임베딩 처리 및 벡터 DB 저장까지의 기초 구성
 
-
+	1.	step01 - RAG 시스템이란 무엇인지 소개하고 구조를 설명합니다.
+	2.	step02 - 실습 환경(Jupyter + Docker + Elasticsearch 등)을 설치하고 구성합니다.
+	3.	step03 - Iceberg의 metadata.json 파일을 불러오고 테이블 구조를 분석합니다.
+	4.	step04 - 로드된 텍스트를 전처리하고 문서 단위로 정리합니다.
+	5.	step05 - OpenAI Embedding API를 활용하여 텍스트 벡터화를 수행합니다.
+	6.	step06 - 벡터화된 데이터를 Elasticsearch에 저장하고 인덱스를 확인합니다.
 
 ⸻
 
 🔹 PART 2. 검색기 구성 및 체인 연결
 
-Step	주제	블로그
-step07	Elasticsearch 검색기 구성	Ep.07
-step08	Retrieval QA 체인	Ep.08
-step09	대화형 QA 체인 (Memory)	Ep.09
-step10	체인 전략 비교	Ep.10
+✅ 검색기(Retriever) 구성부터 LangChain 기반 QA 체인까지 연동
 
-
+	7.	step07 - Elasticsearch 기반 벡터 검색기를 구성하고 Top-K 검색을 테스트합니다.
+	8.	step08 - LangChain RetrievalQA를 사용하여 검색 기반 QA 체인을 구성합니다.
+	9.	step09 - Memory를 포함한 ConversationalRetrievalChain을 구성합니다.
+	10.	step10 - 다양한 체인 구성 방식(Stuff / MapReduce / Refine)을 비교 분석합니다.
 
 ⸻
 
 🔹 PART 3. 멀티 테이블 및 컬렉션 처리
 
-Step	주제	블로그
-step11	테이블별 컬렉션 구성 전략	Ep.11
-step12	키워드 기반 테이블 추론	Ep.12
-step13	GPT 기반 테이블 분류	Ep.13
-step14	질문 자동 라우팅 체인 구성	Ep.14
+✅ 여러 테이블 처리 전략과 질문 분기 구조 설계
 
-
+	11.	step11 - 테이블별로 벡터 컬렉션을 분리하여 관리하는 전략을 구성합니다.
+	12.	step12 - 키워드를 기준으로 적절한 테이블을 추론하는 방식을 설계합니다.
+	13.	step13 - GPT를 이용해 사용자의 질문을 테이블로 분류합니다.
+	14.	step14 - 자동 라우팅 체인을 구성하여 입력에 따라 적절한 QA 흐름을 선택합니다.
 
 ⸻
 
 🔹 PART 4. FastAPI 서버 구성
 
-Step	주제	블로그
-step15	FastAPI 서버 기본 구성	Ep.15
-step16	API 인증 처리	Ep.16
-step17	자동 테이블 선택 API 구성	Ep.17
+✅ RAG 시스템을 API 서버로 전환
 
-
+	15.	step15 - FastAPI 기반 API 서버 구조를 설계하고 기본 엔드포인트를 만듭니다.
+	16.	step16 - API 호출에 인증을 적용하는 방법을 구성합니다 (Token / OAuth 등).
+	17.	step17 - 사용자 입력에 따라 자동으로 테이블을 선택하고 검색하는 API를 만듭니다.
 
 ⸻
 
 🔹 PART 5. 응답 품질 향상 전략
 
-Step	주제	블로그
-step18	고급 프롬프트 전략	Ep.18
-step19	테스트 스크립트 자동화	Ep.19
-step20	k값, 문서 길이 실험	Ep.20
+✅ 프롬프트, 테스트, 성능 튜닝을 통한 응답 품질 개선
 
-
+	18.	step18 - 프롬프트 엔지니어링 전략을 구성하고 다양한 예시를 실험합니다.
+	19.	step19 - 체인 테스트 자동화 스크립트를 작성하여 반복 검증합니다.
+	20.	step20 - Top-K, 문서 길이, Chunk 전략에 따른 응답 품질을 비교합니다.
 
 ⸻
 
 🔹 PART 6. 기능 확장 및 보완
 
-Step	주제	블로그
-step21	다양한 문서 포맷 로딩	Ep.21
-step22	체인 단위 테스트 작성	Ep.22
-step23	사용자 세션 흐름 유지	Ep.23
-step24	응답에 참조 문서 포함	Ep.24
+✅ 다양한 문서 형식과 사용자 흐름 확장
 
-
+	21.	step21 - PDF, Markdown 등 다양한 문서 포맷을 로딩하여 확장합니다.
+	22.	step22 - 체인 단위별 테스트를 구성하고 예외 처리를 설계합니다.
+	23.	step23 - 사용자별 세션 유지 전략을 포함한 대화 흐름을 구현합니다.
+	24.	step24 - 응답 결과에 참조 문서를 포함하는 전략을 구현합니다.
 
 ⸻
 
 🔹 PART 7. 운영 환경 구성
 
-Step	주제	블로그
-step25	Dockerfile 구성	Ep.25
-step26	Elasticsearch Kubernetes 설치	Ep.26
-step27	운영 보안 설정	Ep.27
-step28	시스템 구조 시각화	Ep.28
+✅ 운영 환경으로 배포하기 위한 구조 설계
 
-
+	25.	step25 - Dockerfile을 구성하여 전체 시스템을 컨테이너화합니다.
+	26.	step26 - Elasticsearch를 Kubernetes 클러스터에 설치 및 구성합니다.
+	27.	step27 - 환경변수 및 인증 키 관리로 보안 구성을 강화합니다.
+	28.	step28 - 전체 시스템 아키텍처를 시각화하여 배포 흐름을 정리합니다.
 
 ⸻
 
 🔹 PART 8. 선택 확장
 
-Step	주제	블로그
-step29	Slack / Web UI 연동	Ep.29
-step30	LangGraph 고급 구성	Ep.30
+✅ 외부 연동 및 고급 체인 흐름 구성
 
+	29.	step29 - Slack 또는 간단한 Web UI와 연동하여 사용자 인터페이스를 확장합니다.
+	30.	step30 - LangGraph를 활용하여 고급 체인 워크플로우를 구성합니다.
 
 
 ⸻
